@@ -1,0 +1,63 @@
+
+- hosts: server
+  remote_user: ubuntu
+  become: yes
+  become_user: root
+  tasks:
+    - name: Install aptitude
+      apt:
+        name: aptitude
+        state: latest
+        update_cache: true
+    - name: Install required system packages
+      apt:
+        pkg:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+          - python3-pip
+          - virtualenv
+          - python3-setuptools
+        state: latest
+        update_cache: true
+    - name: Add Docker GPG apt Key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Add Docker Repository
+      apt_repository:
+        repo: deb https://download.docker.com/linux/ubuntu focal stable
+        state: present
+
+    - name: Update apt and install docker-ce
+      apt:
+        name: docker-ce
+        state: latest
+        update_cache: true
+
+    - name: Install Docker Module for Python
+      pip:
+        name: docker
+        
+    - name: Install Docker-compose
+      apt:
+        name:
+          
+          - docker-compose    
+    - name: Login DockerHub
+      shell: docker login -u "{{DOCKER_USERNAME}}" -p "{{DOCKER_PASSWORD}}"
+    - name: Copy file
+      copy:
+        src: docker-compose.yaml
+        dest: /home/ubuntu/
+    - name: Restart docker-compose
+      shell: |
+        docker-compose stop
+        docker-compose rm -f
+        docker-compose pull
+        docker-compose up -d
+    - name: add jenkins user 
+      shell: |
+        chmod 777 /var/run/docker.sock

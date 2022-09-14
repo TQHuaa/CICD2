@@ -1,0 +1,9 @@
+output "web_ip" {
+	description=""
+	value=aws_instance.web.public_ip 
+}
+
+output "jk_ip" {
+	description=""
+	value=aws_instance.jenkins.public_ip 
+}
